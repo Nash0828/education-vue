@@ -1,0 +1,87 @@
+@import "variable";
+$root:32;
+
+$root-size: (32 / 2) * 1px;
+
+@function size($px) {
+    @return $px / $root * 1rem;
+}
+
+@mixin border($direction){
+    position:relative;
+    $selector : '';
+    @if $direction == 'left' or $direction == 'top' {
+      $selector : 'before';
+    } @else if $direction == 'right' or $direction == 'bottom' {
+      $selector : 'after';
+    }
+    @if $direction == 'left' or $direction == 'right' {
+      &::#{$selector}{
+        content: ' ';
+        display: block;
+        position:absolute;
+        top:0;
+        height:100%;
+        width:1px;
+        transform:scaleX(0.5);
+        -webkit-transform:scaleX(0.5);
+        background:#eee;
+      }
+      &::#{$selector}{
+        #{$direction}:0;
+      }
+    }@else if $direction == 'top' or $direction == 'bottom' {
+      &::#{$selector}{
+        content: ' ';
+        display: block;
+        position:absolute;
+        left:0;
+        width:100%;
+        height:1px;
+        transform:scaleY(0.5);
+        -webkit-transform:scaleY(0.5);
+        background:#eee;
+      }
+      &::#{$selector}{
+        #{$direction}:0;
+      }
+    }
+}
+
+@mixin border-none($direction){
+    $selector : '';
+    @if $direction == 'left' or $direction == 'top' {
+      $selector : 'before';
+    } @else if $direction == 'right' or $direction == 'bottom' {
+      $selector : 'after';
+    }
+    &::#{$selector}{
+        display: none;
+    }
+}
+
+
+@mixin txt-overflow($line:1) {
+  /* 多行文本溢出 */
+  overflow : hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: #{$line};
+  -webkit-box-orient: vertical;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+@mixin flex() {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+}
+
+@mixin ellipsis() {
+  overflow: hidden;
+  text-overflow:ellipsis;
+  white-space: nowrap;
+}
