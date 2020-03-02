@@ -1,8 +1,9 @@
 <template>
   <div class="type2">
-    <div class="row primary">
-      <v-field v-model="val" placeholder="请输入答案" class="input" @input="handleInput" border="false"/>
-      <span>kg</span>
+    <div class="row" :class="{'primary': (disabled&&isRight), 'danger': (disabled&&!isRight)}">
+      <v-field v-model="content" placeholder="请输入答案" class="input" @input="handleInput" :disabled="disabled"/>
+      <span>{{unit}}</span>
+      <i class="iconfont"></i>
     </div>
   </div>
 </template>
@@ -14,18 +15,50 @@ export default {
     props: 'value',
     event: 'input'
   },
-  props: ['value'],
+  props: ['value', 'answer', 'unit'],
   data() {
     return {
-      val: ''
+      content: '',
+      disabled: false,
+      // 回答是否正确
+      isRight: false
     }
   },
   created() {
-    this.val = this.value
+    this.content = this.value
   },
   methods: {
     handleInput() {
       this.$emit('input', this.val)
+    },
+    check() {
+      return new Promise((resolve, reject) => {
+        if (!this.content) {
+          this.$toast('请填写答案')
+          // eslint-disable-next-line
+          reject({
+            type: 1,
+            msg: '没有选择选项'
+          })
+        } else {
+          this.disabled = true
+          // 判断回答是否正确
+          if (this.content === String(this.answer)) {
+            this.isRight = true
+            resolve()
+          } else {
+            this.isRight = false
+            // eslint-disable-next-line
+            reject({
+              type: 2,
+              msg: '回答错误',
+              data: {
+                answer: this.answer
+              }
+            })
+          }
+        }
+      })
     }
   },
   components: {
@@ -45,7 +78,9 @@ export default {
       border-radius: size(28);
       overflow: hidden;
       @include flex();
+      justify-content: space-between;
       padding: 0 size(28) 0 size(44);
+      position: relative;
       .input{
         line-height: 1;
         align-items: center;
@@ -70,6 +105,7 @@ export default {
         }
       }
       >span {
+        display: inline-block;
         width: 30%;
         text-align: right;
         color: #444444;
@@ -77,6 +113,9 @@ export default {
       }
       &.primary {
         border: 1px solid #1CBCFD;
+        >span {
+          display: none;
+        }
         .iconfont {
           display: inline-block;
           color: #1CBCFD;
@@ -87,6 +126,9 @@ export default {
       }
       &.danger {
         border: 1px solid #E02020;
+        >span {
+          display: none;
+        }
         .iconfont {
           display: inline-block;
           color: #E02020;
@@ -94,6 +136,14 @@ export default {
             content: "\E61E";
           }
         }
+      }
+      .iconfont {
+        position: absolute;
+        top: 50%;
+        right: size(28);
+        font-size: size(40);
+        transform: translateY(-50%);
+        display: none;
       }
     }
   }

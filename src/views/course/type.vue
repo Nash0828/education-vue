@@ -1,7 +1,7 @@
 <template>
   <div class="type">
     <v-header></v-header>
-    <div class="title">选择您感兴趣的课程</div>
+    <div class="title">选择课程</div>
     <div class="list">
       <router-link tag="div" :to="'./type/' + (index + 1)" :class="'item ' + 'item' + (index + 1)" v-for="(item, index) in list" :key="index">
         <div>

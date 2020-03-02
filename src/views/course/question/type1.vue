@@ -1,8 +1,8 @@
 <template>
-  <div class="type1" ref="list">
-    <div v-for="(item, index) in data" :key="index">
-      <input class="radio" type="radio" v-model="picked" :value="item.value" :id="'radio_'+index" :disabled="activeItem && activeItem.index">
-      <label :for="'radio_'+index" class="item" :class="{'primary': (index == activeItem.index && activeItem.type == '0'), 'danger': (index == activeItem.index && activeItem.type == '1')}">
+  <div class="type1">
+    <div v-for="(item, index) in answers" :key="index">
+      <input class="radio" type="radio" v-model="picked" :value="index" :id="'radio_'+index" :disabled="disabled">
+      <label :for="'radio_'+index" class="item" :class="{'primary': (disabled && picked == index && isRight), 'danger': (disabled && picked == index && !isRight)}">
         <div class="text">
           <span>{{item.text}}</span>
         </div>
@@ -15,26 +15,61 @@
 <script>
 export default {
   props: {
-    data: {
+    answer: {
+      type: Number
+    },
+    answers: {
       type: Array,
       default: () => ([])
-    },
-    activeItem: {
-      type: Object,
-      default: () => ({})
     }
   },
   data() {
     return {
-      picked: -1
+      // 已选择的项, 下标从0开始
+      picked: -1,
+      // 选项不可点击
+      disabled: false,
+      isRight: false
     }
   },
   created() {
-    console.log(this.data)
+  },
+  methods: {
+    check() {
+      return new Promise((resolve, reject) => {
+        // 没有选择选项
+        if (this.picked === -1) {
+          this.$toast('请选择选项')
+          // eslint-disable-next-line
+          reject({
+            type: 1,
+            msg: '没有选择选项'
+          })
+        } else {
+          // 选项不可点击
+          this.disabled = true
+          // 如果选的答案正确
+          if (this.answer === this.picked) {
+            this.isRight = true
+            resolve()
+          } else {
+            this.isRight = false
+            // eslint-disable-next-line
+            reject({
+              type: 2,
+              msg: '回答错误',
+              data: {
+                answer: this.answer
+              }
+            })
+          }
+        }
+      })
+    }
   },
   watch: {
     picked(val) {
-      this.$emit('change', val)
+      // this.$emit('change', val)
     }
   }
 }
@@ -52,22 +87,22 @@ export default {
       margin-bottom: size(44);
       position: relative;
       &.primary {
-        border: 1px solid #1CBCFD;
+        border: 1px solid #1CBCFD  !important;
         .iconfont {
           display: inline-block;
-          color: #1CBCFD;
+          color: #1CBCFD  !important;
           &:before {
-            content: "\E656";
+            content: "\E656" !important;
           }
         }
       }
       &.danger {
-        border: 1px solid #E02020;
+        border: 1px solid #E02020 !important;
         .iconfont {
           display: inline-block;
-          color: #E02020;
+          color: #E02020  !important;
           &:before {
-            content: "\E61E";
+            content: "\E61E"  !important;
           }
         }
       }

@@ -19,31 +19,31 @@
             <div class="left">1</div>
             <div class="right">
               <div>
-                <div class="l">等级称号</div>
+                <div class="l">我的荣誉</div>
                 <div class="r">
-                  <span>2个等级称号</span> <i class="iconfont icon-right"></i>
+                  <span>累计获得3个</span> <i class="iconfont icon-right"></i>
                 </div>
               </div>
             </div>
           </div>
-          <router-link tag="div" to="./certificate" class="row">
-            <div class="left">2</div>
-            <div class="right">
-              <div>
-                <div class="l">等级证书</div>
-                <div class="r">
-                  <span>1张证书</span> <i class="iconfont icon-right"></i>
-                </div>
-              </div>
-            </div>
-          </router-link>
+<!--          <router-link tag="div" to="./certificate" class="row">-->
+<!--            <div class="left">2</div>-->
+<!--            <div class="right">-->
+<!--              <div>-->
+<!--                <div class="l">等级证书</div>-->
+<!--                <div class="r">-->
+<!--                  <span>1张证书</span> <i class="iconfont icon-right"></i>-->
+<!--                </div>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--          </router-link>-->
           <router-link tag="div" to="./history" class="row">
             <div class="left">3</div>
             <div class="right">
               <div>
                 <div class="l">历史课程</div>
                 <div class="r">
-                  <span>9个课程</span> <i class="iconfont icon-right"></i>
+                  <span>累计学习9个课程</span> <i class="iconfont icon-right"></i>
                 </div>
               </div>
             </div>

@@ -1,7 +1,7 @@
 <template>
   <div class="level">
     <v-header></v-header>
-    <div class="title">选择课程的难易程度</div>
+    <div class="title">选择难易程度</div>
     <div class="list">
       <router-link tag="div" to="/home" class="item" v-for="(item, index) in list" :key="index">
         <div class="left"></div>
