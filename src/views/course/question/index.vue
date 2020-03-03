@@ -1,5 +1,5 @@
 <template>
-  <div class="question">
+  <div class="question" v-if="questionList.length">
     <v-header></v-header>
 <!--    <div class="progress-wrap">-->
 <!--      <div class="num">答题-->
@@ -20,41 +20,42 @@
         <v-progress :percentage="((currentQuestionIndex)/questionList.length) * 100" stroke-width="6" color="#1CBCFD" track-color="#F2F2F2"></v-progress>
       </div>
     </div>
+
     <div class="subject">
-      <div class="title">{{questionList[currentQuestionIndex].title}}</div>
+      <div class="title">{{questionList[currentQuestionIndex].questions}}</div>
+      <transition name="tip">
       <div class="tip" v-if="checkFinished">
         <p>正确答案: </p>
         <div class="right" v-if="isRight">正确</div>
         <div class="desc" v-else-if="!isRight">{{rightAnswer}}</div>
       </div>
+      </transition>
     </div>
     <div class="answer-wrap">
       <div class="list">
-<!--        <type1 ref="type1" :answers="questionList[0].answers" :answer="1"></type1>-->
-<!--                <type2 ref="type2" v-model="answer" answer="10"></type2>-->
-<!--        <type3 ref="type3" :answers="questionList[2].answers" :answer="1"></type3>-->
-<!--        <type4 ref="type4" :answers="questionList[1].answers" :answer="questionList[1].answer"></type4>-->
-        <!-- 单项文字选择题 -->
-        <template v-if="questionList[currentQuestionIndex].type === 1">
-          <type1 ref="questionType" :answers="questionList[currentQuestionIndex].answers" :answer="questionList[currentQuestionIndex].answer"></type1>
-        </template>
-        <!-- 填空题 -->
-        <template v-else-if="questionList[currentQuestionIndex].type === 2">
-          <type2 ref="questionType" v-model="currentAnswer" :answer="questionList[currentQuestionIndex].answer" :unit="questionList[currentQuestionIndex]"></type2>
-        </template>
-        <!-- 图片单选题 -->
-        <template v-if="questionList[currentQuestionIndex].type === 3">
-          <type3 ref="questionType" :answers="questionList[currentQuestionIndex].answers" :answer="questionList[currentQuestionIndex].answer"></type3>
-        </template>
-        <!-- 多选题 -->
-        <template v-if="questionList[currentQuestionIndex].type === 4">
-          <type4 ref="questionType" :answers="questionList[currentQuestionIndex].answers" :answer="questionList[currentQuestionIndex].answer"></type4>
-        </template>
+<!--        <transition name="slide">-->
+<!--          <template v-if="questionList[currentQuestionIndex].type === 1">-->
+<!--            <type1 v-model="currentAnswer" ref="questionType" :data="questionList[currentQuestionIndex]" :key="currentQuestionIndex"></type1>-->
+<!--          </template>-->
+<!--          &lt;!&ndash; 文字多选题 &ndash;&gt;-->
+<!--          <template v-else-if="questionList[currentQuestionIndex].type === 2">-->
+<!--            <type2 v-model="currentAnswer" ref="questionType" :data="questionList[currentQuestionIndex]" :key="currentQuestionIndex"></type2>-->
+<!--          </template>-->
+<!--          &lt;!&ndash; 填空题 &ndash;&gt;-->
+<!--          <template v-else-if="questionList[currentQuestionIndex].type === 3">-->
+<!--            <type3 v-model="currentAnswer" ref="questionType" :data="questionList[currentQuestionIndex]" :key="currentQuestionIndex"></type3>-->
+<!--          </template>-->
+<!--          &lt;!&ndash; 图片单选题 &ndash;&gt;-->
+<!--          <template v-else-if="questionList[currentQuestionIndex].type === 6">-->
+<!--            <type6 v-model="currentAnswer" ref="questionType" :data="questionList[currentQuestionIndex]" :key="currentQuestionIndex"></type6>-->
+<!--          </template>-->
+<!--        </transition>-->
+        <type ref="questionType" v-model="currentAnswer" :data="questionList[currentQuestionIndex]" :key="currentQuestionIndex"></type>
       </div>
     </div>
     <div class="action-bar">
       <div class="left">
-        <div>
+        <div @click="$router.back()">
           <i class="iconfont icon-guanji"></i><span>结束</span>
         </div>
       </div>
@@ -67,17 +68,24 @@
 
 <script>
 import Header from 'components/header'
+import { getQuestionList } from 'api/course'
 import { Progress } from 'vant'
+// 文字单选题
 import Type1 from './type1'
+// 文字多选题
 import Type2 from './type2'
+// 填空题
 import Type3 from './type3'
-import Type4 from './type4'
+// 图片单选题
+import Type6 from './type6'
+import Type from './type'
+
 export default {
   data() {
     return {
       // 当前问题下标
       currentQuestionIndex: 0,
-      // 当前问题的答案
+      // 用户所选的答案
       currentAnswer: null,
       // 问题的正确答案
       rightAnswer: null,
@@ -88,123 +96,31 @@ export default {
       // 按钮是否被禁用
       buttonDisabled: false,
       /* eslint-disable */
-      questionList: [
-        /*
-        {
-          "id": 1,
-          "curriculum_id": "1",
-          "type": 1,
-          "questions": "下列哪一项不属于X-431移动诊断中心的功能？",
-          "questions_option": {
-            "A": "提供一站式诊断解决方案",
-            "B": "支持ADAS校准",
-            "C": "手动升降调节显示屏高度",
-            "D": "支持示波器、传感器、电瓶检测、内窥镜、热成像仪的扩展"
-          },
-          "right_key": "C",
-          "language": 1,
-          "createtime": 1582946105,
-          "updatetime": 1582946105
-        },
-        */
-        {
-          // 文字选择题
-          type: 1,
-          title: '下面选项中，哪种是最好的销售方式?',
-          // 正确答案, answers的数组下标
-          answer: 1,
-          answers: [
-            {
-              text: '邮件',
-              value: 1
-            },
-            {
-              text: '电话沟通',
-              value: 2
-            },
-            {
-              text: '面谈',
-              value: 3
-            },
-            {
-              text: '书信',
-              value: 4
-            }
-          ]
-        },
-        {
-          // 填空题
-          type: 2,
-          title: '光速有多快?',
-          // 单位
-          unit: 'km/s',
-          // 正确答案
-          answer: 30
-        },
-        {
-          // 图片选择题
-          type: 3,
-          title: '以下哪一款设备是可视化空调清洗内窥镜?',
-          // 正确答案, 值是answers的下标
-          answer: 0,
-          answers: [
-            {
-              text: '',
-              value: 1,
-              url: require('image/temp_01.png')
-            },
-            {
-              text: '',
-              value: 2,
-              url: require('image/temp_02.png')
-            },
-            {
-              text: '',
-              value: 3,
-              url: require('image/temp_03.png')
-            },
-            {
-              text: '',
-              value: 4,
-              url: require('image/temp_04.png')
-            }
-          ]
-        },
-        {
-          // 多选题
-          type: 4,
-          title: '目前元征所拥有的移动式3D四轮定位仪有哪些？',
-          // 正确答案, 值是answers数组下标
-          answer: [0, 3, 4],
-          answers: [
-            {
-              text: 'X-431',
-              value: 1
-            },
-            {
-              text: 'X-531',
-              value: 2
-            },
-            {
-              text: 'X-631',
-              value: 3
-            },
-            {
-              text: 'X-731',
-              value: 4
-            },
-            {
-              text: 'X-831',
-              value: 5
-            }
-          ]
-        }
-      ],
+      questions_type: [{
+        "id": 1,
+        "name": "单项选择题"
+      }, {
+        "id": 2,
+        "name": "多项选择题"
+      }, {
+        "id": 3,
+        "name": "填空题"
+      }, {
+        "id": 4,
+        "name": "判断题"
+      }, {
+        "id": 5,
+        "name": "配对题"
+      }],
+      questionList: [],
       // 所做过的题的答题情况
       resultArr: [],
       // 连对了多少题
       evenRight: 0
     }
+  },
+  created() {
+    this._getQuestionList()
   },
   methods: {
     check() {
@@ -244,17 +160,31 @@ export default {
         this.currentQuestionIndex += 1
         // 下一题还没有检查答案
         this.checkFinished = false
+        this.currentAnswer = null
         this.$forceUpdate()
       }
+    },
+    _getQuestionList() {
+      this.$showLoading()
+      getQuestionList().then(res => {
+        console.log(res)
+        this.questionList = res.data.questions
+        this.currentQuestionIndex = res.data.answer.length
+      }).catch(err => {
+        console.log(res)
+      }).finally(() => {
+        this.$hideLoading()
+      })
     }
   },
   components: {
     vHeader: Header,
     vProgress: Progress,
+    Type,
     Type1,
     Type2,
     Type3,
-    Type4
+    Type6
   },
   watch: {
     resultArr(val) {
@@ -264,7 +194,7 @@ export default {
 }
 </script>
 
-<style scoped lang="scss">
+<style scoped lang='scss'>
   @import "css/def";
   .question {
     min-height: 100vh;
@@ -330,6 +260,9 @@ export default {
         /deep/ .van-progress__pivot {
           display: none;
         }
+        /deep/ .van-progress__portion {
+          transition: all .3s;
+        }
       }
     }
     .subject {
@@ -338,6 +271,7 @@ export default {
       padding: 0 size(60);
       @include flex();
       flex-wrap: wrap;
+      transition: all .5s;
       .title {
         color: #555555;
         font-size: size(34);
@@ -347,6 +281,7 @@ export default {
         width: 100%;
         position: relative;
         top: size(8);
+        transition: all .5s;
       }
       .tip {
         height: size(160);
@@ -376,6 +311,7 @@ export default {
       width: 100%;
       padding: 0 size(60) size(200);
       >.list {
+        position: relative;
       }
     }
     .action-bar {
@@ -422,6 +358,36 @@ export default {
           }
         }
       }
+    }
+    .slide-enter-active,.slide-leave-active {
+      will-change: transform;
+      -webkit-transition: all .5s;
+      transition: all .5s;
+      position: absolute
+    }
+    .slide-enter-to {
+      opacity: 1;
+    }
+    .slide-leave-to {
+      opacity: 0;
+    }
+    .slide-enter {
+      -webkit-transform: translate3d(100%, 0, 0);
+      transform: translate3d(100%, 0, 0);
+    }
+    .slide-leave-active {
+      -webkit-transform: translate3d(-100%, 0, 0);
+      transform: translate3d(-100%, 0, 0);
+    }
+    .tip-enter-active {
+      -webkit-transition: all 1s;
+      transition: all 1s;
+    }
+    .tip-leave {
+      opacity: 0;
+    }
+    .tip-enter {
+      opacity: 0;
     }
   }
 </style>

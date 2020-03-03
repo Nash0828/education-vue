@@ -4,11 +4,14 @@ import router from './router'
 import store from './store'
 import 'assets/font/iconfont.css'
 import VConsole from 'vconsole'
+import animated from 'animate.css'
+
 import { getUrlParam } from '@/utils/utils'
 import { Toast, Lazyload } from 'mint-ui'
 import { Toast as Loading, Dialog } from 'vant'
 
 Vue.config.productionTip = false
+Vue.use(animated)
 
 // 移动端调试
 /* eslint-disable */
@@ -46,12 +49,12 @@ router.beforeEach((to, from, next) => {
   if (!store.getters.authFlag) {
     // 监听请求状态码变化
     store.watch(state => state.authFlag, (authFlag) => {
-      // console.log('是否已鉴权', authFlag)
+      console.log('是否已鉴权', authFlag)
       checkLogin(to, next)
     })
   } else {
     // 已经鉴权过了
-    // console.log('已经鉴权过了')
+    console.log('已经鉴权过了')
     checkLogin(to, next)
   }
 })

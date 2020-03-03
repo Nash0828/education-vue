@@ -42,7 +42,7 @@ service.interceptors.request.use(_config => {
 
 service.interceptors.response.use(response => {
   let res = response.data
-  if (res.code === 0 || res.code === '0') {
+  if (res.code === 1 || res.code === '1') {
     const code = res.code
     const msg = res.msg
     store.commit('SET_API_STATUS', {code, msg})

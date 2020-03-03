@@ -3,8 +3,7 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
-// const target = 'https://diag4.golodata.com'
-const target = 'https://diag4.goloiov.cn'
+const target = 'http://172.16.66.57/index.php/'
 module.exports = {
   dev: {
     baseURL: target,
@@ -18,11 +17,6 @@ module.exports = {
         changeOrigin: true,
         pathRewrite: {
         },
-        secure: false
-      },
-      '/addons': {
-        target: target,
-        changeOrigin: true,
         secure: false
       }
     },

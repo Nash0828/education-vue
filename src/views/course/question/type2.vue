@@ -1,40 +1,46 @@
 <template>
-  <div class="type2">
-    <div class="row" :class="{'primary': (disabled&&isRight), 'danger': (disabled&&!isRight)}">
-      <v-field v-model="content" placeholder="请输入答案" class="input" @input="handleInput" :disabled="disabled"/>
-      <span>{{unit}}</span>
+  <div class="type4" ref="type4">
+    <div class="selected-wrap" :class="{'primary': (disabled&&isRight), 'danger animated shake': (disabled&&!isRight)}">
+      <div class="list">
+        <span v-for="(item, index) in picked" :key="index" @click="del(index)">{{data.questions_option[item].name}}</span>
+      </div>
       <i class="iconfont"></i>
+    </div>
+    <div class="answers">
+      <div v-for="(item, index) in data.questions_option" :key="index">
+        <input class="checkbox" type="checkbox" v-model="picked" :value="index" :id="'checkbox_'+index" :disabled="disabled">
+        <label :for="'checkbox_'+index">{{item.name}}</label>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { Field } from 'vant'
 export default {
   model: {
     props: 'value',
     event: 'input'
   },
-  props: ['value', 'answer', 'unit'],
+  props: {
+    data: {
+      type: Object
+    }
+  },
   data() {
     return {
-      content: '',
+      picked: [],
+      // 选项不可点击
       disabled: false,
-      // 回答是否正确
       isRight: false
     }
   },
   created() {
-    this.content = this.value
   },
   methods: {
-    handleInput() {
-      this.$emit('input', this.val)
-    },
     check() {
       return new Promise((resolve, reject) => {
-        if (!this.content) {
-          this.$toast('请填写答案')
+        if (this.picked.length === 0) {
+          this.$toast('请选择')
           // eslint-disable-next-line
           reject({
             type: 1,
@@ -42,114 +48,142 @@ export default {
           })
         } else {
           this.disabled = true
-          // 判断回答是否正确
-          if (this.content === String(this.answer)) {
-            this.isRight = true
-            resolve()
-          } else {
+          // 比对已选择的答案和正确答案
+          if (this.picked.length !== this.data.right_key.length) {
             this.isRight = false
             // eslint-disable-next-line
             reject({
               type: 2,
-              msg: '回答错误',
+              msg: '与正确答案个数不一致, 答案错误',
               data: {
-                answer: this.answer
+                answer: this.data.right_key
               }
             })
+          } else {
+            let _picked = JSON.parse(JSON.stringify(this.picked))
+            let rightAnswer = JSON.parse(JSON.stringify(this.data.right_key))
+            let count = 0
+            for (const i in _picked) {
+              for (const j in rightAnswer) {
+                if (_picked[i] === rightAnswer[j]) {
+                  count++
+                  break
+                }
+              }
+            }
+            if (count === rightAnswer.length) {
+              this.isRight = true
+              resolve()
+            } else {
+              this.isRight = false
+              // eslint-disable-next-line
+              reject({
+                type: 2,
+                msg: '回答错误',
+                data: {
+                  answer: this.data.right_key
+                }
+              })
+            }
           }
         }
       })
+    },
+    del(index) {
+      if (!this.disabled) {
+        this.picked.splice(index, 1)
+      }
     }
   },
-  components: {
-    vField: Field
+  watch: {
+    picked(val) {
+      this.$emit('input', val)
+    }
   }
 }
 </script>
 
 <style scoped lang="scss">
   @import "css/def";
-  .type2 {
+  .type4 {
     width: 100%;
-    >div.row {
+    .selected-wrap {
       width: 100%;
-      height: size(94);
+      min-height: size(220);
       border: 1px solid #676D8B;
       border-radius: size(28);
-      overflow: hidden;
-      @include flex();
-      justify-content: space-between;
-      padding: 0 size(28) 0 size(44);
+      padding: size(26) size(26) size(50) size(26);
       position: relative;
-      .input{
-        line-height: 1;
-        align-items: center;
-        height: size(50);
-        padding: 0;
-        width: 70%;
-        /deep/ input{
-          color: #333;
-          font-size: size(32);
-          color: #959AAD;
-          &::placeholder{
-            color: #CCCCCC;
-          }
-          &:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0px 1000px white inset;
-            // border: 1px solid #CCC!important;
-          }
-          &::placeholder{
-            position: relative;
-            // top: size(6);
-          }
-        }
-      }
-      >span {
+      span {
         display: inline-block;
-        width: 30%;
-        text-align: right;
-        color: #444444;
-        font-size: size(40);
+        min-height: size(60);
+        line-height: 1.2;
+        border-radius: size(30);
+        border: 1px solid #1FB7F5;
+        color: #1CBCFD;
+        font-size: size(30);
+        padding: size(10) size(18);
+        margin-right: size(20);
+        margin-bottom: size(20);
+        background-color: #E1F6FE;
       }
-      &.primary {
-        border: 1px solid #1CBCFD;
-        >span {
-          display: none;
-        }
-        .iconfont {
-          display: inline-block;
-          color: #1CBCFD;
-          &:before {
-            content: "\E656";
-          }
-        }
+      .iconfont {
+        position: absolute;
+        bottom: 0;
+        right: size(28);
+        bottom: size(28);
+        font-size: size(40);
+        display: none;
       }
       &.danger {
         border: 1px solid #E02020;
-        >span {
-          display: none;
-        }
         .iconfont {
           display: inline-block;
           color: #E02020;
           &:before {
-            content: "\E61E";
+            content: "\E61E"  !important;
           }
         }
       }
-      .iconfont {
-        position: absolute;
-        top: 50%;
-        right: size(28);
-        font-size: size(40);
-        transform: translateY(-50%);
-        display: none;
+      &.primary {
+        border: 1px solid #1CBCFD;
+        .iconfont {
+          color: #1CBCFD;
+          display: inline-block;
+          &:before {
+            content: "\E656"  !important;
+          }
+        }
       }
     }
-  }
-</style>
-<style>
-  .van-cell:not(:last-child)::after {
-    display: none;
+    .answers {
+      width: 100%;
+      margin-top: size(56);
+      @include flex();
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      >div {
+        .checkbox {
+          display: none;
+          &:checked + label{
+            background-color: #F6F6F6;
+            border: 1px solid #F6F6F6;
+            color: #F6F6F6;
+          }
+        }
+        label {
+          @include flex();
+          min-height: size(60);
+          line-height: 1.2;
+          border-radius: size(30);
+          border: 1px solid #BEBEBE;
+          color: #040404;
+          font-size: size(30);
+          padding: size(10) size(18);
+          margin-right: size(20);
+          margin-bottom: size(20);
+        }
+      }
+    }
   }
 </style>

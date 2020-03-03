@@ -1,5 +1,4 @@
-import { getUserInfo } from 'api/main'
-import { getMyWallet } from 'api/wallet'
+// import { getUserInfo } from 'api/main'
 import Cookies from 'js-cookie'
 const app = {
   state: {
@@ -13,12 +12,18 @@ const app = {
   actions: {
     GetUserInfo({ commit }) {
       return new Promise((resolve) => {
-        Promise.all([getUserInfo(), getMyWallet()]).then(res => {
-          // console.log('获取用户信息完成')
-          const userInfo = Object.assign({}, res[0].data.userinfo, res[1].data, res[0].data.product_type_id)
-          commit('SET_USER', userInfo)
+        // getUserInfo().then( res => {
+        // eslint-disable-next-line
+        new Promise((resolve1, reject) => {
+          setTimeout(() => {
+            resolve1()
+          }, 100)
+        }).then(res => {
+          console.log('获取用户信息完成')
+          // const userInfo = Object.assign({}, res.userinfo)
+          // commit('SET_USER', userInfo)
           commit('SET_AUTH_FLAG', true)
-          commit('SET_TOKEN', userInfo.token)
+          // commit('SET_TOKEN', userInfo.token)
           resolve()
         }).catch(err => {
           console.log('获取用户信息失败')
