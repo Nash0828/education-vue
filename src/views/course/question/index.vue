@@ -17,11 +17,11 @@
     <div class="progress-wrap2">
       <div class="desc" v-if="evenRight>=3">连对{{evenRight}}题</div>
       <div class="progress">
-        <v-progress :percentage="((currentQuestionIndex)/questionList.length) * 100" stroke-width="6" color="#1CBCFD" track-color="#F2F2F2"></v-progress>
+        <v-progress :percentage="((currentQuestionIndex + 1)/questionList.length) * 100" stroke-width="6" color="#1CBCFD" track-color="#F2F2F2"></v-progress>
       </div>
     </div>
 
-    <div class="subject">
+    <div class="subject" :class="{'type5': this.currentQuestionType == '5'}">
       <div class="title">{{questionList[currentQuestionIndex].questions}}</div>
       <transition name="tip">
       <div class="tip" v-if="checkFinished">
@@ -33,24 +33,9 @@
     </div>
     <div class="answer-wrap">
       <div class="list">
-<!--        <transition name="slide">-->
-<!--          <template v-if="questionList[currentQuestionIndex].type === 1">-->
-<!--            <type1 v-model="currentAnswer" ref="questionType" :data="questionList[currentQuestionIndex]" :key="currentQuestionIndex"></type1>-->
-<!--          </template>-->
-<!--          &lt;!&ndash; 文字多选题 &ndash;&gt;-->
-<!--          <template v-else-if="questionList[currentQuestionIndex].type === 2">-->
-<!--            <type2 v-model="currentAnswer" ref="questionType" :data="questionList[currentQuestionIndex]" :key="currentQuestionIndex"></type2>-->
-<!--          </template>-->
-<!--          &lt;!&ndash; 填空题 &ndash;&gt;-->
-<!--          <template v-else-if="questionList[currentQuestionIndex].type === 3">-->
-<!--            <type3 v-model="currentAnswer" ref="questionType" :data="questionList[currentQuestionIndex]" :key="currentQuestionIndex"></type3>-->
-<!--          </template>-->
-<!--          &lt;!&ndash; 图片单选题 &ndash;&gt;-->
-<!--          <template v-else-if="questionList[currentQuestionIndex].type === 6">-->
-<!--            <type6 v-model="currentAnswer" ref="questionType" :data="questionList[currentQuestionIndex]" :key="currentQuestionIndex"></type6>-->
-<!--          </template>-->
-<!--        </transition>-->
+        <transition name="slide">
         <type ref="questionType" v-model="currentAnswer" :data="questionList[currentQuestionIndex]" :key="currentQuestionIndex"></type>
+        </transition>
       </div>
     </div>
     <div class="action-bar">
@@ -80,11 +65,12 @@ import Type3 from './type3'
 import Type6 from './type6'
 import Type from './type'
 
+/* eslint-disable */
 export default {
   data() {
     return {
       // 当前问题下标
-      currentQuestionIndex: 0,
+      currentQuestionIndex: 40,
       // 用户所选的答案
       currentAnswer: null,
       // 问题的正确答案
@@ -95,23 +81,7 @@ export default {
       checkFinished: false,
       // 按钮是否被禁用
       buttonDisabled: false,
-      /* eslint-disable */
-      questions_type: [{
-        "id": 1,
-        "name": "单项选择题"
-      }, {
-        "id": 2,
-        "name": "多项选择题"
-      }, {
-        "id": 3,
-        "name": "填空题"
-      }, {
-        "id": 4,
-        "name": "判断题"
-      }, {
-        "id": 5,
-        "name": "配对题"
-      }],
+      // 所有题目列表
       questionList: [],
       // 所做过的题的答题情况
       resultArr: [],
@@ -119,10 +89,20 @@ export default {
       evenRight: 0
     }
   },
+  computed: {
+    // 当前问题的题目类型
+    currentQuestionType() {
+      return this.questionList[this.currentQuestionIndex].type
+    }
+  },
   created() {
     this._getQuestionList()
+    // this.questionList.unshift({"id":44,"curriculum_id":"1","type":5,"questions":"请为以下产品和特点进行配对","questions_option":{"groupA":{"A":{"name":"闪测 "},"B":{"name":"BST-800蓄电池检测仪"},"C":{"name":"TLT440W四柱举升机"},"D":{"name":"X-931非接触式四轮定位仪"}},"groupB":{"A":{"name":"直接打印检测结果 "},"B":{"name":"即插即用，直接查看检测报告"},"C":{"name":"无需拆装轮夹和标靶"},"D":{"name":"可配合非接触四轮定位仪使用"}}},"right_key":"A-B,B-A,C-D,D-C","language":1,"createtime":1582946105,"updatetime":1582946105})
+  },
+  mounted() {
   },
   methods: {
+    // 检查答案
     check() {
       // 判断按钮是否被禁用
       if (this.buttonDisabled) {
@@ -153,7 +133,6 @@ export default {
         }).finally(() => {
           // 按钮可以被点击
           this.buttonDisabled = false
-          console.log('执行了finnally')
         })
       } else {
         // 下一题的索引递增
@@ -169,7 +148,8 @@ export default {
       getQuestionList().then(res => {
         console.log(res)
         this.questionList = res.data.questions
-        this.currentQuestionIndex = res.data.answer.length
+        // this.questionList.unshift({"id":44,"curriculum_id":"1","type":5,"questions":"请为以下产品和特点进行配对","questions_option":{"groupA":{"A":{"name":"闪测 "},"B":{"name":"BST-800蓄电池检测仪"},"C":{"name":"TLT440W四柱举升机"},"D":{"name":"X-931非接触式四轮定位仪"}},"groupB":{"A":{"name":"直接打印检测结果 "},"B":{"name":"即插即用，直接查看检测报告"},"C":{"name":"无需拆装轮夹和标靶"},"D":{"name":"可配合非接触四轮定位仪使用"}}},"right_key":"A-B,B-A,C-D,D-C","language":1,"createtime":1582946105,"updatetime":1582946105})
+        // this.currentQuestionIndex = res.data.answer.length
       }).catch(err => {
         console.log(res)
       }).finally(() => {
@@ -272,6 +252,9 @@ export default {
       @include flex();
       flex-wrap: wrap;
       transition: all .5s;
+      &.type5 {
+        min-height: size(150);
+      }
       .title {
         color: #555555;
         font-size: size(34);

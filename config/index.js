@@ -22,7 +22,7 @@ module.exports = {
     },
 
     // Various Dev Server settings
-    host: 'localhost', // can be overwritten by process.env.HOST
+    host: '172.16.67.145', // can be overwritten by process.env.HOST
     // host: 'localhost',
     port: 8777,
     autoOpenBrowser: false,
